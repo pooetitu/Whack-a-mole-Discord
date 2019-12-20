@@ -10,6 +10,7 @@ import modele.Player;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -19,7 +20,7 @@ public class Main extends ListenerAdapter {
 	private static JDA bot;
 
 	public static void main(String[] args) throws LoginException {
-		bot = new JDABuilder("NjU3MzQ1MzQ4MTQxODQyNDMy.Xf0rHg.AhNN4LRKM7YTAu0MTSuMjA6zkg0")
+		bot = new JDABuilder("NjU3MzQ1MzQ4MTQxODQyNDMy.Xf059A.pocnglP6v-YXfClmrgwmLP_SRCc")
 				.setActivity(Activity.playing("!play, !clear")).addEventListeners(new Main()).build();
 
 	}
@@ -39,13 +40,12 @@ public class Main extends ListenerAdapter {
 				}
 				break;
 			}
-//			case ("!clear"): {
-//				if(event.getAuthor().)
-//				for (Message iter : event.getChannel().getIterableHistory()) {
-//					iter.delete().queue();
-//				}
-//				break;
-//			}
+			case ("!clear"): {
+				for (Message iter : event.getChannel().getIterableHistory()) {
+					iter.delete().queue();
+				}
+				break;
+			}
 			}
 			System.out.println(event.getAuthor());
 		}
