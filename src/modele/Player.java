@@ -1,11 +1,24 @@
 package modele;
 
-import net.dv8tion.jda.api.entities.Message;
+import main.Main;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class Player {
+
 	private User user;
+	private int highestScore;
+
+	public Player(User user) {
+		super();
+		this.user = user;
+	}
+
+	public void finish(int score) {
+		if (score > highestScore) {
+			highestScore = score;
+		}
+		Main.getPlayers().remove(user.getId());
+	}
 
 	public User getUser() {
 		return user;
@@ -15,18 +28,12 @@ public class Player {
 		this.user = user;
 	}
 
-	public void play(MessageReceivedEvent event) {
-		try {
-			Message msg = event.getChannel().sendMessage(event.getAuthor().getAsMention() + "\nLet's play!").complete();
-			for (int i = 1; i <= 3; i++) {
-				Thread.sleep(1000);
-				event.getChannel().editMessageById(msg.getId(), event.getAuthor().getAsMention() + "\nStart in " + i)
-						.queue();
-				Game game = new Game(msg,user,event.getChannel());
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	public int getHighestScore() {
+		return highestScore;
+	}
+
+	public void setHighestScore(int highestScore) {
+		this.highestScore = highestScore;
 	}
 
 }
