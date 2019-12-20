@@ -1,23 +1,18 @@
 package main;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.security.auth.login.LoginException;
 
-import modele.Player;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class Main extends ListenerAdapter {
-	private static Map<String, Player> players = new HashMap<>();
+//	private boolean playing;
 
 	public static void main(String[] args) throws LoginException {
-		new JDABuilder("NjU3MzQ1MzQ4MTQxODQyNDMy.Xf0asg.2MhmTdML8u0YyetyjyKHY49SMfk").addEventListeners(new Main())
-				.setActivity(Activity.playing("§help,§play")).build();
+		new JDABuilder("NjU3MzQ1MzQ4MTQxODQyNDMy.Xfv5AA.rESQ3pCiwnbyq3dH34aOeerB4ec").addEventListeners(new Main())
+				.build();
 	}
 
 	@Override
@@ -26,9 +21,10 @@ public class Main extends ListenerAdapter {
 			String msg = event.getMessage().getContentDisplay();
 			switch (msg) {
 			case ("§play"): {
-				if (!players.containsKey(event.getAuthor().getId())) {
-					players.put(event.getAuthor().getId(), new Player()).play(event);
-					event.getMessage().delete().queue();
+				try {
+					play(event);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 				break;
 			}
@@ -43,4 +39,12 @@ public class Main extends ListenerAdapter {
 		}
 	}
 
+	private void play(MessageReceivedEvent event) throws InterruptedException {
+		Message msg = event.getChannel().sendMessage(event.getAuthor().getAsMention() + "\nLet's play!").complete();
+		for (int i = 1; i <= 3; i++) {
+			Thread.sleep(1000);
+			event.getChannel().editMessageById(msg.getId(), event.getAuthor().getAsMention() + "\nStart in " + i)
+					.queue();
+		}
+	}
 }
