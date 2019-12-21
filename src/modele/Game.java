@@ -18,7 +18,6 @@ public class Game implements Runnable, EventListener {
 	private String line1;
 	private String line2;
 	private String line3;
-	private String action;
 
 	public Game(Player author, MessageChannel channel) {
 		super();
@@ -27,7 +26,6 @@ public class Game implements Runnable, EventListener {
 		playing = true;
 		timeLimit = 30000;
 		timer = 0;
-		action = "";
 		gameLogic = new GameLogic();
 	}
 
@@ -66,8 +64,6 @@ public class Game implements Runnable, EventListener {
 	private void game() {
 		int timeLeft = (timeLimit / 1500) - (timer / 1500);
 		line1 = author.getUser().getAsMention() + " Score: " + gameLogic.getScore() + " Time left: " + timeLeft;
-		line2 = gameLogic.checkingAction(action);
-		action = "";
 		line3 = gameLogic.moleDisplay();
 	}
 
@@ -85,7 +81,7 @@ public class Game implements Runnable, EventListener {
 		if (event instanceof MessageReceivedEvent) {
 			String content = ((MessageReceivedEvent) event).getMessage().getContentDisplay();
 			if (content.equals("1") || content.equals("2") || content.equals("3")) {
-				action = content;
+				line2 = gameLogic.checkingAction(content);
 			} else if (content.equals("!stop")) {
 				playing = false;
 			} else {
@@ -150,14 +146,6 @@ public class Game implements Runnable, EventListener {
 
 	public void setTimer(int timer) {
 		this.timer = timer;
-	}
-
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
 	}
 
 	public MessageChannel getChannel() {

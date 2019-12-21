@@ -18,10 +18,11 @@ public class Main extends ListenerAdapter {
 //	private boolean playing;
 	private static Map<String, Player> players = new HashMap<>();
 	private static JDA bot;
+	private final static String token = "NjU3MzQ1MzQ4MTQxODQyNDMy.Xf1coQ.zsdMGtOGMsdD8U-byXHt6i1gNgI";
 
 	public static void main(String[] args) throws LoginException {
-		bot = new JDABuilder("NjU3MzQ1MzQ4MTQxODQyNDMy.Xf059A.pocnglP6v-YXfClmrgwmLP_SRCc")
-				.setActivity(Activity.playing("!play, !clear")).addEventListeners(new Main()).build();
+		bot = new JDABuilder(token).setActivity(Activity.playing("!help pour plus d'infos")).addEventListeners(new Main())
+				.build();
 
 	}
 
@@ -45,6 +46,12 @@ public class Main extends ListenerAdapter {
 					iter.delete().queue();
 				}
 				break;
+			}
+			case ("!help"): {
+				event.getChannel().sendMessage("Voici les commandes disponnible pour le moment "
+						+ event.getAuthor().getAsMention()
+						+ "\n!clear - Supprime tout les messages dans le channel\n!play - Lance une partie de Whack a mole\n--> Lors d'une partie de whack a mole vous pourrez gagner des point en tapant sur les taupe pour cela taper dans le chat le numero correspondant a la position de la taupe.\n Chaque taupe taper vous donnera 15 point.")
+						.queue();
 			}
 			}
 			System.out.println(event.getAuthor());
