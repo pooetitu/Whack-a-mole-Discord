@@ -16,8 +16,6 @@ public class Game implements Runnable, EventListener {
 	private int timeLimit;
 	private int timer;
 	private String line1;
-	private String line2;
-	private String line3;
 
 	public Game(Player author, MessageChannel channel) {
 		super();
@@ -30,6 +28,7 @@ public class Game implements Runnable, EventListener {
 	}
 
 	private void start() throws InterruptedException {
+		System.out.println("Starting to play with " + author.getUser().getName());
 		msg = channel.sendMessage(author.getUser().getAsMention() + "\nLet's play!").complete();
 		for (int i = 3; i >= 1; i--) {
 			Thread.sleep(1000);
@@ -42,14 +41,12 @@ public class Game implements Runnable, EventListener {
 		try {
 			start();
 			while (playing) {
-				System.out.println("playing with " + author.getUser().getName());
 				if (timer >= timeLimit) {
 					playing = false;
 					break;
 				}
 				game();
-				msg.editMessage(line1 + "\n" + line2 + "\n" + line3).queue();
-				gameLogic.turn();
+				msg.editMessage(line1 + "\n" + gameLogic.messageDisplay()).queue();
 				timer += 1500;
 				Thread.sleep(1500);
 			}
@@ -64,7 +61,7 @@ public class Game implements Runnable, EventListener {
 	private void game() {
 		int timeLeft = (timeLimit / 1500) - (timer / 1500);
 		line1 = author.getUser().getAsMention() + " Score: " + gameLogic.getScore() + " Time left: " + timeLeft;
-		line3 = gameLogic.moleDisplay();
+		gameLogic.turn();
 	}
 
 	private void end() {
@@ -80,14 +77,12 @@ public class Game implements Runnable, EventListener {
 	public void onEvent(GenericEvent event) {
 		if (event instanceof MessageReceivedEvent) {
 			String content = ((MessageReceivedEvent) event).getMessage().getContentDisplay();
-			if (content.equals("1") || content.equals("2") || content.equals("3")) {
-				line2 = gameLogic.checkingAction(content);
-			} else if (content.equals("!stop")) {
+			if (content.equals("!stop")) {
 				playing = false;
-			} else {
-				line2 = "Enter 1, 2 or 3 to hit the mole";
+				return;
 			}
-			if (((MessageReceivedEvent) event).getAuthor().equals(author.getUser()) && playing)
+			if (((MessageReceivedEvent) event).getAuthor().equals(author.getUser()) && playing
+					&& gameLogic.checkingAction(content))
 				((MessageReceivedEvent) event).getMessage().delete().complete();
 		}
 	}
@@ -122,22 +117,6 @@ public class Game implements Runnable, EventListener {
 
 	public void setLine1(String line1) {
 		this.line1 = line1;
-	}
-
-	public String getLine2() {
-		return line2;
-	}
-
-	public void setLine2(String line2) {
-		this.line2 = line2;
-	}
-
-	public String getLine3() {
-		return line3;
-	}
-
-	public void setLine3(String line3) {
-		this.line3 = line3;
 	}
 
 	public int getTimer() {
