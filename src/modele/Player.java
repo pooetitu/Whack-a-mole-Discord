@@ -1,31 +1,51 @@
 package modele;
 
-import main.Main;
 import net.dv8tion.jda.api.entities.User;
 
 public class Player {
-
-	private User user;
+	private String userID;
+	private String username;
+	private String usertag;
 	private int highestScore;
+	private transient GuildHandler guildHandler;
 
-	public Player(User user) {
+	public Player(User user, GuildHandler gh) {
 		super();
-		this.user = user;
+		this.userID = user.getId();
+		this.username = user.getName();
+		this.usertag = user.getAsMention();
+		guildHandler = gh;
 	}
 
 	public void finish(int score) {
 		if (score > highestScore) {
 			highestScore = score;
 		}
-		Main.getPlayers().remove(user.getId());
+		guildHandler.getPlayers().remove(userID);
 	}
 
-	public User getUser() {
-		return user;
+	public String getUserID() {
+		return userID;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getUsertag() {
+		return usertag;
+	}
+
+	public void setUsertag(String usertag) {
+		this.usertag = usertag;
 	}
 
 	public int getHighestScore() {

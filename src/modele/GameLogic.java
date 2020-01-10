@@ -5,7 +5,7 @@ import java.util.Random;
 public class GameLogic {
 	private boolean[] moles = new boolean[3];
 	private int score;
-	private String line2="Press 1, 2 or 3 to hit the mole";
+	private String line2 = "Press 1, 2 or 3 to hit the mole";
 
 	public GameLogic() {
 		super();
@@ -20,7 +20,7 @@ public class GameLogic {
 		} else {
 			moles[randNb] = false;
 			score -= 10;
-			line2= "```diff\r\n" + "Score -10\r\n" + "```";
+			line2 = "```diff\r\n" + "Score -10\r\n" + "```";
 		}
 	}
 
@@ -51,7 +51,7 @@ public class GameLogic {
 			}
 			return true;
 		}
-		line2="Press 1, 2 or 3 to hit the mole";
+		line2 = "Press 1, 2 or 3 to hit the mole";
 		return false;
 	}
 

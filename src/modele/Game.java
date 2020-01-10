@@ -28,11 +28,11 @@ public class Game implements Runnable, EventListener {
 	}
 
 	private void start() throws InterruptedException {
-		System.out.println("Starting to play with " + author.getUser().getName());
-		msg = channel.sendMessage(author.getUser().getAsMention() + "\nLet's play!").complete();
+		System.out.println("Starting to play with " + author.getUsername());
+		msg = channel.sendMessage(author.getUsertag() + "\nLet's play!").complete();
 		for (int i = 3; i >= 1; i--) {
 			Thread.sleep(1000);
-			channel.editMessageById(msg.getId(), author.getUser().getAsMention() + "\nStart in " + i).queue();
+			channel.editMessageById(msg.getId(), author.getUsertag() + "\nStart in " + i).queue();
 		}
 	}
 
@@ -60,13 +60,13 @@ public class Game implements Runnable, EventListener {
 
 	private void game() {
 		int timeLeft = (timeLimit / 1500) - (timer / 1500);
-		line1 = author.getUser().getAsMention() + " Score: " + gameLogic.getScore() + " Time left: " + timeLeft;
+		line1 = author.getUsertag() + " Score: " + gameLogic.getScore() + " Time left: " + timeLeft;
 		gameLogic.turn();
 	}
 
 	private void end() {
 		System.out.println("game over");
-		String mention = author.getUser().getAsMention();
+		String mention = author.getUsertag();
 		author.finish(gameLogic.getScore());
 		msg.editMessage(mention + "\nGame over your score:" + gameLogic.getScore() + "\nyour best score:"
 				+ author.getHighestScore()).complete();
@@ -81,7 +81,7 @@ public class Game implements Runnable, EventListener {
 				playing = false;
 				return;
 			}
-			if (((MessageReceivedEvent) event).getAuthor().equals(author.getUser()) && playing
+			if (((MessageReceivedEvent) event).getAuthor().getId().equals(author.getUserID()) && playing
 					&& gameLogic.checkingAction(content))
 				((MessageReceivedEvent) event).getMessage().delete().complete();
 		}
