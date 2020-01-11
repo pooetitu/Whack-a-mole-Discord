@@ -1,7 +1,10 @@
 package modele;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,8 +33,6 @@ public class GuildHandler {
 	private Map<String, Channel> channels = new HashMap<>();
 	@Transient
 	private Map<String, Player> players = new HashMap<>();
-	@Transient
-	private boolean clearing = false;
 
 	public GuildHandler() {
 		super();
@@ -67,6 +68,19 @@ public class GuildHandler {
 		if (!event.getAuthor().isBot()) {
 			String msg = event.getMessage().getContentDisplay();
 			switch (msg) {
+			case ("!top"): {
+				List<Player> top = OrmInstance.getObject(Player.class);
+				Collections.sort(top);
+				top=top.stream().limit(10).collect(Collectors.toList());
+				System.out.println(top.size());
+				String topPlayers=event.getAuthor().getAsMention()+"Top players:\n";
+				for(Player p:top) {
+					topPlayers+=p.getUsername()+" - Score: "+p.getHighestScore()+"\n";
+				}
+				System.out.println(topPlayers);
+				event.getChannel().sendMessage(topPlayers).queue();
+				break;
+			}
 			case ("!addchannel"): {
 				if (event.getMember().getPermissions().contains(Permission.ADMINISTRATOR))
 					addChannel(event.getChannel().getId());
@@ -79,8 +93,17 @@ public class GuildHandler {
 				break;
 			}
 			case ("!play"): {
-				if (!players.containsKey(event.getAuthor().getId()) && !clearing) {
-					players.put(event.getAuthor().getId(), new Player(event.getAuthor(), this));
+				if (!channels.containsKey(event.getChannel().getId()))
+					break;
+				if (channels.get(event.getChannel().getId()).isClearing())
+					break;
+				if (!players.containsKey(event.getAuthor().getId())) {
+					if (!OrmInstance.objectExists(Player.class, event.getAuthor().getId()))
+						players.put(event.getAuthor().getId(), new Player(event.getAuthor()));
+					else
+						players.put(event.getAuthor().getId(),
+								OrmInstance.getObject(Player.class, event.getAuthor().getId()));
+					players.get(event.getAuthor().getId()).setGuildHandler(this);
 					Game g = new Game(players.get(event.getAuthor().getId()), event.getChannel());
 					Main.getBot().addEventListener(g);
 					Thread thread = new Thread(g);
@@ -89,21 +112,27 @@ public class GuildHandler {
 				break;
 			}
 			case ("!clear"): {
+				if (!channels.containsKey(event.getChannel().getId()))
+					break;
+				if (channels.get(event.getChannel().getId()).isClearing())
+					break;
 				if (players.isEmpty()) {
-					clearing = true;
+					channels.get(event.getChannel().getId()).setClearing(true);
 					for (Message iter : event.getChannel().getIterableHistory()) {
 						iter.delete().queue();
 					}
 				}
-				clearing = false;
+				channels.get(event.getChannel().getId()).setClearing(false);
 				break;
 			}
 			case ("!help"): {
+				if (!channels.containsKey(event.getChannel().getId()))
+					break;
 				event.getChannel().sendMessage("Voici les commandes disponible pour le moment "
 						+ event.getAuthor().getAsMention()
-						+ "\n!clear - Supprime tout les messages dans le channel\n!play - Lance une partie de Whack a mole\n--> Lors d'une partie de whack a mole vous pourrez gagner des point en tapant sur les taupe pour cela taper dans le chat le numero correspondant a la position de la taupe.\n Chaque taupe taper vous donnera 15 points."
-						+ "--> Si la taupe n'est pas sortie du trou et que vous la taper vous perdez 5 points"
-						+ "\n!stop - Stop la partie en cours").queue();
+						+ ":\n!top - Montre la liste des 10 meilleurs joueurs.\n!clear - Supprime tout les messages dans un channel.\n!play - Lance une partie de Whack a mole.\n--> Lors d'une partie de whack a mole vous pourrez gagner des point en assomant les taupe pour cela taper dans le chat le numero correspondant à la position de la taupe.\n Chaque taupe assomer vous donnera 15 points."
+						+ "--> Si la taupe n'est pas encore sortie du trou et que vous la taper vous perdez 5 points."
+						+ "\n!stop - Arrête la partie en cours.").queue();
 				break;
 			}
 			}
@@ -125,14 +154,6 @@ public class GuildHandler {
 
 	public void setGuildID(String guildID) {
 		this.guildID = guildID;
-	}
-
-	public boolean isClearing() {
-		return clearing;
-	}
-
-	public void setClearing(boolean clearing) {
-		this.clearing = clearing;
 	}
 
 }

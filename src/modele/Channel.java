@@ -11,7 +11,9 @@ public class Channel {
 	@Column(name = "channel_id")
 	private String channelID;
 	@Transient
-	private boolean playing=false;
+	private boolean playing = false;
+	@Transient
+	private boolean clearing = false;
 
 	public Channel() {
 		super();
@@ -28,6 +30,14 @@ public class Channel {
 
 	public void setChannelID(String channelID) {
 		this.channelID = channelID;
+	}
+
+	public boolean isClearing() {
+		return clearing;
+	}
+
+	public void setClearing(boolean clearing) {
+		this.clearing = clearing;
 	}
 
 	@Override

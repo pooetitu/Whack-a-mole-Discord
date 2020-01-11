@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.User;
 import utils.OrmInstance;
 
 @Entity
-public class Player {
+public class Player implements Comparable<Player> {
 	@Id
 	private String userID;
 	@Column
@@ -25,12 +25,11 @@ public class Player {
 		super();
 	}
 
-	public Player(User user, GuildHandler gh) {
+	public Player(User user) {
 		super();
 		this.userID = user.getId();
 		this.username = user.getName();
 		this.usertag = user.getAsMention();
-		guildHandler = gh;
 		OrmInstance.persist(this);
 	}
 
@@ -80,6 +79,17 @@ public class Player {
 
 	public void setGuildHandler(GuildHandler guildHandler) {
 		this.guildHandler = guildHandler;
+	}
+
+	@Override
+	public int compareTo(Player o) {
+		if (o.getHighestScore() == highestScore)
+			return 0;
+		else if (o.getHighestScore() < highestScore)
+			return 1;
+		else
+			return -1;
+
 	}
 
 }

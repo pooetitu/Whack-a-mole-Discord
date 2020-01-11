@@ -18,7 +18,7 @@ import utils.OrmInstance;
 public class Main extends ListenerAdapter {
 	private static Map<String, GuildHandler> guilds = new HashMap<>();
 	private static JDA bot;
-	private final static String token = "NjU3MzQ1MzQ4MTQxODQyNDMy.Xhm4eg.siR5CCUNdw-aT-ZZBDhlzB_Ehy4";
+	private final static String token = "NjU3MzQ1MzQ4MTQxODQyNDMy.XhnElw.MYU_aLERxo1a03uzdr34oxJU5WQ";
 
 	public static void main(String[] args) throws LoginException, InterruptedException {
 		OrmInstance.init();

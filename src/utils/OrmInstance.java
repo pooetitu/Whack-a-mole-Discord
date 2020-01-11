@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -22,6 +24,14 @@ public class OrmInstance {
 		em.getTransaction().commit();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> getObject(Class<T> t) {
+		em.getTransaction().begin();
+		List<T> o = em.createQuery("from " + t.getName()).getResultList();
+		em.getTransaction().commit();
+		return o;
+	}
+
 	public static <T> T getObject(Class<T> t, String id) {
 		em.getTransaction().begin();
 		T o = em.find(t, id);
@@ -37,9 +47,9 @@ public class OrmInstance {
 		return (i != 0 ? true : false);
 	}
 
-	public static <T> void remove(Class<T> t,String id) {
+	public static <T> void remove(Class<T> t, String id) {
 		em.getTransaction().begin();
-		em.remove(em.find(t,id));
+		em.remove(em.find(t, id));
 		em.getTransaction().commit();
 	}
 
