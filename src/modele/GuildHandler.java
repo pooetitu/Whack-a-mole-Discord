@@ -1,15 +1,17 @@
 package modele;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import main.Main;
 import net.dv8tion.jda.api.Permission;
@@ -23,7 +25,9 @@ public class GuildHandler {
 	@Column(name = "guild_id")
 	private String guildID;
 	@OneToMany(orphanRemoval = true)
-	private List<Channel> channels = new ArrayList<>();
+	@Cascade(CascadeType.ALL)
+	@MapKey(name = "channelID")
+	private Map<String, Channel> channels = new HashMap<>();
 	@Transient
 	private Map<String, Player> players = new HashMap<>();
 	@Transient
@@ -42,16 +46,20 @@ public class GuildHandler {
 	}
 
 	private void addChannel(String channel) {
-		if (channels.equals(channel))
+		if (channels.containsKey(channel))
 			return;
-		channels.add(new Channel(channel, this));
+		channels.put(channel, new Channel(channel));
+		OrmInstance.persist(channels.get(channel));
 		OrmInstance.update(this);
 	}
 
 	private void removeChannel(String channel) {
-		if (!channels.equals(channel))
+		if (!channels.containsKey(channel)) {
+			System.out.println("not exist");
 			return;
+		}
 		channels.remove(channel);
+		OrmInstance.remove(Channel.class, channel);
 		OrmInstance.update(this);
 	}
 

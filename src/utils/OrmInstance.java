@@ -39,16 +39,13 @@ public class OrmInstance {
 
 	public static <T> void remove(Class<T> t,String id) {
 		em.getTransaction().begin();
-		
 		em.remove(em.find(t,id));
-		em.clear();
 		em.getTransaction().commit();
 	}
 
 	public static void update(Object o) {
 		em.getTransaction().begin();
 		em.merge(o);
-		em.clear();
 		em.getTransaction().commit();
 	}
 }
