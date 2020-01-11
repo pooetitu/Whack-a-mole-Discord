@@ -1,13 +1,29 @@
 package modele;
 
-import net.dv8tion.jda.api.entities.User;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
 
+import net.dv8tion.jda.api.entities.User;
+import utils.OrmInstance;
+
+@Entity
 public class Player {
+	@Id
 	private String userID;
+	@Column
 	private String username;
+	@Column
 	private String usertag;
+	@Column
 	private int highestScore;
-	private transient GuildHandler guildHandler;
+	@Transient
+	private GuildHandler guildHandler;
+
+	public Player() {
+		super();
+	}
 
 	public Player(User user, GuildHandler gh) {
 		super();
@@ -15,12 +31,14 @@ public class Player {
 		this.username = user.getName();
 		this.usertag = user.getAsMention();
 		guildHandler = gh;
+		OrmInstance.persist(this);
 	}
 
 	public void finish(int score) {
 		if (score > highestScore) {
 			highestScore = score;
 		}
+		OrmInstance.update(this);
 		guildHandler.getPlayers().remove(userID);
 	}
 
@@ -54,6 +72,14 @@ public class Player {
 
 	public void setHighestScore(int highestScore) {
 		this.highestScore = highestScore;
+	}
+
+	public GuildHandler getGuildHandler() {
+		return guildHandler;
+	}
+
+	public void setGuildHandler(GuildHandler guildHandler) {
+		this.guildHandler = guildHandler;
 	}
 
 }

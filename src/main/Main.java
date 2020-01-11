@@ -13,19 +13,25 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import utils.OrmInstance;
 
 public class Main extends ListenerAdapter {
 	private static Map<String, GuildHandler> guilds = new HashMap<>();
 	private static JDA bot;
-	private final static String token = "NjU3MzQ1MzQ4MTQxODQyNDMy.Xf1uGA.yJX4nW4CAlM4Kun7__PpSzk1AoA";
+	private final static String token = "NjU3MzQ1MzQ4MTQxODQyNDMy.Xhjb7w.2TMJB0Z91UYxBlZM7cDtxTmAMow";
 
-	public static void main(String[] args) throws LoginException {
+	public static void main(String[] args) throws LoginException, InterruptedException {
+		OrmInstance.init();
 		bot = new JDABuilder(token).setActivity(Activity.playing("!help pour plus d'infos"))
-				.addEventListeners(new Main()).build();
+				.addEventListeners(new Main()).build().awaitReady();
+		System.out.println("bot init");
 		for (Guild iter : bot.getGuilds()) {
-			guilds.put(iter.getId(), new GuildHandler(iter.getId()));
+			if (OrmInstance.objectExists(GuildHandler.class, iter.getId())) {
+				guilds.put(iter.getId(), OrmInstance.getObject(GuildHandler.class, iter.getId()));
+			} else {
+				guilds.put(iter.getId(), new GuildHandler(iter.getId()));
+			}
 		}
-
 	}
 
 	@Override
@@ -36,10 +42,10 @@ public class Main extends ListenerAdapter {
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		if (!event.getAuthor().isBot()) {
-			if (guilds.containsKey(event.getGuild().getId())) {
-				guilds.get(event.getGuild().getId()).commandHandler(event);
-				;
-			}
+			if (!guilds.containsKey(event.getGuild().getId()))
+				guilds.put(event.getGuild().getId(), new GuildHandler(event.getGuild().getId()));
+			guilds.get(event.getGuild().getId()).commandHandler(event);
+
 		}
 
 	}

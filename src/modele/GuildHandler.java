@@ -5,44 +5,66 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import main.Main;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import utils.OrmInstance;
 
+@Entity
 public class GuildHandler {
+	@Id
+	@Column(name = "guild_id")
 	private String guildID;
-	private List<String> channels = new ArrayList<>();
-	private transient Map<String, Player> players = new HashMap<>();
-	private transient boolean clearing = false;
+	@OneToMany(orphanRemoval = true)
+	private List<Channel> channels = new ArrayList<>();
+	@Transient
+	private Map<String, Player> players = new HashMap<>();
+	@Transient
+	private boolean clearing = false;
+
+	public GuildHandler() {
+		super();
+	}
 
 	public GuildHandler(String id) {
 		super();
 		this.guildID = id;
+		if (!OrmInstance.objectExists(GuildHandler.class, guildID)) {
+			OrmInstance.persist(this);
+		}
 	}
 
 	private void addChannel(String channel) {
-		if (channels.contains(channel))
+		if (channels.equals(channel))
 			return;
-		channels.add(channel);
+		channels.add(new Channel(channel, this));
+		OrmInstance.update(this);
 	}
 
 	private void removeChannel(String channel) {
-		if (channels.contains(channel)) {
-			channels.remove(channel);
-		}
+		if (!channels.equals(channel))
+			return;
+		channels.remove(channel);
+		OrmInstance.update(this);
 	}
 
 	public void commandHandler(MessageReceivedEvent event) {
 		if (!event.getAuthor().isBot()) {
 			String msg = event.getMessage().getContentDisplay();
 			switch (msg) {
-			case ("!addchan"): {
+			case ("!addchannel"): {
 				if (event.getMember().getPermissions().contains(Permission.ADMINISTRATOR))
 					addChannel(event.getChannel().getId());
 				break;
 			}
-			case ("!removechan"): {
+			case ("!removechannel"): {
 				if (event.getMember().getPermissions().contains(Permission.ADMINISTRATOR))
 					removeChannel(event.getChannel().getId());
 
@@ -95,6 +117,14 @@ public class GuildHandler {
 
 	public void setGuildID(String guildID) {
 		this.guildID = guildID;
+	}
+
+	public boolean isClearing() {
+		return clearing;
+	}
+
+	public void setClearing(boolean clearing) {
+		this.clearing = clearing;
 	}
 
 }
